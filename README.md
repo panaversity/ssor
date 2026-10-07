@@ -1,13 +1,13 @@
-# SSOR: State System of Record
+# SSoR: State System of Record
 
 > **The Temporal State & Lineage Layer for Enterprise Agentic Systems**  
-> *Part of the Panaversity Agentic Infrastructure Suite (`KSoR` + `SSOR` + `DSoR`)*
+> *Part of the Panaversity Agentic Infrastructure Suite (`KSoR` + `SSoR` + `DSoR`)*
 
 ---
 
 ## What is SSOR?
 
-**SSOR (State System of Record)** is a bitemporal, typed hierarchical vector graph substrate designed to store, persist, and audit dynamic workflow state for enterprise AI agents.
+**SSoR (State System of Record)** is a bitemporal, typed hierarchical vector graph substrate designed to store, persist, and audit dynamic workflow state for enterprise AI agents.
 
 In enterprise automation, failure rarely stems from a lack of model reasoning—it stems from the **absence of structured, persistent, and auditable state**. Enterprise workflows are not isolated, stateless tasks; they live in an evolving web of changing environments, historical interactions, policy updates, and human interventions.
 
@@ -15,7 +15,7 @@ While traditional databases store raw data and logs store telemetry, SSOR provid
 
 ---
 
-## What SSOR Does
+## What SSoR Does
 
 SSOR aggregates and structures fragmented enterprise interactions into a continuous, compounding state layer through four main functions:
 
@@ -35,6 +35,6 @@ SSOR aggregates and structures fragmented enterprise interactions into a continu
 
 ---
 
-## How SSOR Connects to KSoR and DSoR
+## How SSoR Connects to KSoR and DSoR
 
-SSOR completes the **Panaversity Infrastructure Triad**, acting as the dynamic temporal engine that connects static institutional knowledge (**KSoR**) with governed execution and action logs (**DSoR**).
+SSoR completes the **Panaversity Infrastructure Triad**, acting as the dynamic temporal engine that connects static institutional knowledge (**KSoR**) with governed execution and action logs (**DSoR**).

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ssor.example.com/schemas/v0.1-draft/derivation.json",
+  "title": "Derivation",
+  "description": "The lineage of an assertion: what it came from, and who or what produced it. Maps to W3C PROV-O: wasDerivedFrom, wasGeneratedBy, wasAttributedTo. A claim without a derivation is not admitted.",
+  "type": "object",
+  "required": ["type", "assertion", "wasDerivedFrom", "wasGeneratedBy"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "const": "derivation"
+    },
+    "id": {
+      "type": "string",
+      "description": "Server-assigned record id."
+    },
+    "assertion": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "The assertion this derivation is for."
+    },
+    "wasDerivedFrom": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          { "$ref": "defs.json#/$defs/ssorId" },
+          {
+            "type": "object",
+            "required": ["ref"],
+            "additionalProperties": false,
+            "properties": {
+              "ref": { "$ref": "refs.json#/$defs/externalRef" },
+              "note": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "description": "Inputs: episodes, other assertions, receipts, or external references (e.g. dsor:read/Q-311). External refs may rot; inputs inside the record are preferred (issue #3)."
+    },
+    "wasGeneratedBy": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "The principal or extraction run that produced the claim: 'agent:ap-clerk', 'person:officer1', 'model-run:mr-91'."
+    },
+    "wasAttributedTo": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "Who the claim is attributed to (PROV-O), when it differs from the generator — e.g. a person for a confirmed claim produced by a tool."
+    },
+    "recordTime": {
+      "$ref": "defs.json#/$defs/recordTime"
+    },
+    "recompute": {
+      "type": "object",
+      "description": "Set when this derivation was recomputed because a source claim was superseded (B-18). Recompute creates new records; it never edits old ones.",
+      "additionalProperties": false,
+      "properties": {
+        "replaces": { "$ref": "defs.json#/$defs/ssorId" },
+        "triggeredBy": { "$ref": "#/$defs/supersededClaim" }
+      }
+    }
+  },
+  "$defs": {
+    "supersededClaim": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "The superseded claim whose correction triggered recompute."
+    }
+  }
+}

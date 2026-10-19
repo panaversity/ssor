@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ssor.example.com/schemas/v0.1-draft/defs.json",
+  "title": "SSoR shared definitions",
+  "$comment": "Roadmap item 2 draft material. Companion to spec/boundary-0.1-draft.md. Origin and record time are assigned by admission and are readOnly: a payload that carries them for its own claims is stripped or rejected (boundary rules B-07, B-15).",
+  "$defs": {
+    "ssorId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*:[A-Za-z0-9._/-]+$",
+      "description": "Namespaced identifier, e.g. 'matter:M-1042', 'dsor:evidence/D-77', 'agent:ap-clerk', 'person:jane@corp.example'."
+    },
+    "origin": {
+      "type": "string",
+      "enum": ["observed", "confirmed", "reported", "inferred"],
+      "readOnly": true,
+      "description": "Assigned at admission from authenticated identity and the authority map. NEVER taken from the payload (B-07)."
+    },
+    "isoDateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "validTime": {
+      "type": "object",
+      "description": "When the claim says it held in the world. A claim that later proves false still has a valid time (B-16).",
+      "required": ["from"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/isoDateTime" },
+        "to": {
+          "$ref": "#/$defs/isoDateTime",
+          "description": "Open-ended when the claim is still in force."
+        }
+      }
+    },
+    "recordTime": {
+      "type": "object",
+      "readOnly": true,
+      "description": "When SSoR recorded the item — not when the world learned it (B-17). Server-assigned.",
+      "required": ["at"],
+      "additionalProperties": false,
+      "properties": {
+        "at": { "$ref": "#/$defs/isoDateTime" }
+      }
+    },
+    "supersession": {
+      "type": "object",
+      "description": "Records are never edited in place. A correction is a new record that supersedes the old one; the superseded record stays, marked (B-06, B-18). Set by admission/adjudication, not by the original submitter.",
+      "additionalProperties": false,
+      "properties": {
+        "supersedes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ssorId" },
+          "minItems": 1,
+          "description": "Ids of the claims this record supersedes (correction) — distinct from resolution, which supersedes nothing (B-19)."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Why the earlier claim was wrong or is being replaced."
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Required when a model produced the item; admission verifies what it can (README §Admission: which model, from which inputs).",
+      "required": ["model"],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Model identifier and version, e.g. 'acme/extract-2.1'."
+        },
+        "inputs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ssorId" },
+          "minItems": 1,
+          "description": "References to the episodes, receipts or records the model read. Lineage must terminate in something checkable (issue #3)."
+        },
+        "prompt": {
+          "type": "string",
+          "description": "Optional prompt/template reference (not raw content) for re-runs."
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Stored as metadata only. NOT a calibrated probability and NEVER affects origin (README §Origin rules)."
+        }
+      }
+    },
+    "audience": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ssorId" },
+      "minItems": 1,
+      "description": "Principals permitted to see the record. Governance comes before retrieval: enforced on every surface before search or return (README §5)."
+    },
+    "cloudEventsKeys": {
+      "type": "object",
+      "required": ["source", "id"],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string",
+          "format": "uri-reference",
+          "description": "CloudEvents source — with 'id', the deduplication key (B-14)."
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "CloudEvents id — with 'source', the deduplication key (B-14)."
+        }
+      }
+    }
+  }
+}

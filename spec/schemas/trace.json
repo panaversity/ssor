@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ssor.example.com/schemas/v0.1-draft/trace.json",
+  "title": "Trace",
+  "description": "A recorded decision, with exactly what SSoR showed the decision-maker. Recorded BEFORE any action is requested: the trace id travels to DSoR as a correlation id, and DSoR's evidence returns linked to it. Nothing in a trace is edited afterwards.",
+  "type": "object",
+  "required": [
+    "type",
+    "decisionContext",
+    "principal",
+    "decision",
+    "citedReceipts",
+    "recordTime"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "const": "trace"
+    },
+    "id": {
+      "type": "string",
+      "description": "Server-assigned trace id, returned at record time. Used as the correlation id when acting through DSoR."
+    },
+    "matter": {
+      "$ref": "defs.json#/$defs/ssorId"
+    },
+    "decisionContext": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "Server-issued context grouping every read made for this decision (see decision-context.json)."
+    },
+    "principal": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "The deciding principal — a worker or a person."
+    },
+    "decision": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What was decided."
+    },
+    "justification": {
+      "type": "string",
+      "description": "The decision-maker's own statement. An attributed claim: NOT proof of internal reasoning, nor of inputs read outside SSoR."
+    },
+    "citedReceipts": {
+      "type": "array",
+      "items": { "$ref": "defs.json#/$defs/ssorId" },
+      "description": "Receipts this decision-maker claims to rely on. A subset of receiptsAttached — selective citation is visible to a reviewer."
+    },
+    "receiptsAttached": {
+      "type": "array",
+      "readOnly": true,
+      "items": { "$ref": "defs.json#/$defs/ssorId" },
+      "description": "EVERY receipt issued in the decision context, attached by SSoR at record time. The agent cannot remove these, invent one, or misquote one."
+    },
+    "externalRefs": {
+      "type": "array",
+      "items": { "$ref": "refs.json#/$defs/externalRef" },
+      "description": "Anything read outside SSoR and kept: DSoR response references (dsor:read/...), KSoR citations."
+    },
+    "policy": {
+      "type": "object",
+      "description": "Policy versions in force at decision time (README §What a trace records).",
+      "additionalProperties": false,
+      "properties": {
+        "ksorGeneration": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The KSoR generation consulted (T-01)."
+        },
+        "ksorRefs": {
+          "type": "array",
+          "items": { "$ref": "defs.json#/$defs/ssorId" }
+        },
+        "controlVersions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "DSoR control versions the worker expects to be enforced — pairing with ksorGeneration exposes KSoR↔DSoR drift (issue #7)."
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "description": "What the decision will request from DSoR, if anything. Omitted when the decision is to take no action.",
+      "additionalProperties": false,
+      "properties": {
+        "actionType": { "type": "string" },
+        "target": { "$ref": "defs.json#/$defs/ssorId" }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "readOnly": true,
+      "description": "Filled when DSoR's evidence for this trace arrives — appended, never edited. Absent means no outcome has been recorded yet.",
+      "additionalProperties": false,
+      "properties": {
+        "episode": { "$ref": "defs.json#/$defs/ssorId" },
+        "settledAt": { "$ref": "defs.json#/$defs/isoDateTime" }
+      }
+    },
+    "recordTime": {
+      "$ref": "defs.json#/$defs/recordTime"
+    },
+    "audience": {
+      "$ref": "defs.json#/$defs/audience"
+    }
+  }
+}

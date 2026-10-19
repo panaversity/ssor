@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ssor.example.com/schemas/v0.1-draft/decision-context.json",
+  "title": "Decision context",
+  "description": "Supporting record for traces. A server-issued id grouping everything a worker read while making one decision. Server-issued, not a time window: one principal may run two tasks on the same matter at once. Append-only like everything else.",
+  "type": "object",
+  "required": ["type", "id", "tenant", "principal", "matter", "run", "openedAt"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "const": "decision_context"
+    },
+    "id": {
+      "type": "string",
+      "description": "Server-issued context id, e.g. 'C-77', returned by state.begin_decision."
+    },
+    "tenant": {
+      "$ref": "defs.json#/$defs/ssorId"
+    },
+    "principal": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "The worker or person whose reads are being grouped."
+    },
+    "matter": {
+      "$ref": "defs.json#/$defs/ssorId"
+    },
+    "run": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The worker's run identifier — two concurrent tasks on one matter get two contexts."
+    },
+    "openedAt": {
+      "$ref": "defs.json#/$defs/isoDateTime"
+    },
+    "closedByTrace": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "The trace that consumed this context. Set once by the server; a context with no trace records a decision that was never made."
+    },
+    "receipts": {
+      "type": "array",
+      "readOnly": true,
+      "items": { "$ref": "defs.json#/$defs/ssorId" },
+      "description": "Every receipt issued under this context, in issue order — attached in full to the trace (§4 of the README)."
+    }
+  }
+}

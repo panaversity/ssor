@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ssor.example.com/schemas/v0.1-draft/refs.json",
+  "title": "Cross-system references",
+  "description": "Reference grammar for pointers out of SSoR (spec §5.1). References are pointers, not copies: the target system remains the authority for the referenced fact.",
+  "$defs": {
+    "externalRef": {
+      "type": "string",
+      "pattern": "^(dsor:(evidence|read|action)/[A-Za-z0-9._/-]+|ksor:[A-Za-z0-9._/-]+@gen-[0-9]+|urn:[A-Za-z0-9._:-]+)$",
+      "examples": [
+        "dsor:evidence/D-77",
+        "dsor:read/Q-311",
+        "dsor:action/A-19",
+        "ksor:procedures/payment-timeout@gen-14"
+      ],
+      "description": "dsor:evidence/<id> — DSoR's record of an action outcome. dsor:read/<id> — a DSoR read response cited in a trace. dsor:action/<id> — the action request, for correlation. ksor:<doc>@gen-<n> — a cited KSoR document at a specific generation."
+    },
+    "traceCorrelation": {
+      "type": "string",
+      "pattern": "^trace:[A-Za-z0-9._/-]+$",
+      "description": "The trace id passed to DSoR when acting; evidence arriving without it is flagged 'uncorrelated' (B-23)."
+    }
+  }
+}

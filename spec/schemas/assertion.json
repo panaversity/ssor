@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ssor.example.com/schemas/v0.1-draft/assertion.json",
+  "title": "Assertion",
+  "description": "A typed claim, the period it is claimed to hold, when SSoR recorded it, and its origin. An assertion is authoritative for what was claimed and why it was believed — not for the world.",
+  "type": "object",
+  "required": ["type", "subject", "predicate", "object", "validTime", "recordTime", "origin"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "const": "assertion"
+    },
+    "id": {
+      "type": "string",
+      "description": "Server-assigned record id."
+    },
+    "subject": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "What the claim is about: an entity or matter, e.g. 'matter:M-1042'."
+    },
+    "predicate": {
+      "type": "string",
+      "description": "The property claimed, e.g. 'status', 'amount', 'owner'."
+    },
+    "object": {
+      "description": "The claimed value. Structured where the predicate defines a shape (e.g. status is an enum defined by the tenant's matter model).",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "boolean" },
+        { "type": "object" }
+      ]
+    },
+    "matter": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "Matter context, when the claim concerns one."
+    },
+    "validTime": {
+      "$ref": "defs.json#/$defs/validTime"
+    },
+    "recordTime": {
+      "$ref": "defs.json#/$defs/recordTime"
+    },
+    "origin": {
+      "$ref": "defs.json#/$defs/origin"
+    },
+    "authority": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "The designated authority the origin was evaluated against (authority map entry), as of record time."
+    },
+    "derivation": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "Id of the derivation record: where this claim came from. No claim without lineage (B-13, principle 4)."
+    },
+    "provenance": {
+      "$ref": "defs.json#/$defs/provenance",
+      "description": "Required when origin is 'inferred'."
+    },
+    "supersedes": {
+      "type": "array",
+      "items": { "$ref": "defs.json#/$defs/ssorId" },
+      "description": "Present on a correction: the claims this one replaces (B-18). Superseded claims stay in the record, marked. A resolution supersedes nothing (B-19)."
+    },
+    "supersededBy": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "Set when a later correction supersedes this claim. Server-set; never in a payload."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Metadata only: a model-reported confidence never changes origin and is not a calibrated probability (README §Origin rules)."
+    },
+    "audience": {
+      "$ref": "defs.json#/$defs/audience"
+    }
+  }
+}

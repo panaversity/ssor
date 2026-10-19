@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ssor.example.com/schemas/v0.1-draft/read-receipt.json",
+  "title": "Read receipt",
+  "description": "Supporting record for traces. A server-issued, immutable identifier for exactly what SSoR delivered on one read: the query, its parameters, and the exact assertion versions returned. Delivery history — not the reader's learning history, and not SSoR's recording history (record time).",
+  "type": "object",
+  "required": ["type", "id", "decisionContext", "query", "returned", "issuedAt"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "const": "read_receipt"
+    },
+    "id": {
+      "type": "string",
+      "description": "Server-issued receipt id, e.g. 'R-512'."
+    },
+    "decisionContext": {
+      "$ref": "defs.json#/$defs/ssorId"
+    },
+    "query": {
+      "type": "object",
+      "required": ["tool"],
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "type": "string",
+          "description": "The read tool called, e.g. 'state.matter'."
+        },
+        "params": {
+          "type": "object",
+          "description": "Canonicalised parameters of the read."
+        }
+      }
+    },
+    "returned": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["record", "version"],
+        "additionalProperties": false,
+        "properties": {
+          "record": { "$ref": "defs.json#/$defs/ssorId" },
+          "version": {
+            "type": "string",
+            "description": "The exact version returned — enough to re-materialise what the reader saw. Asserting 'state as of 14:05' is not enough: the record held more than the reader was shown."
+          }
+        }
+      },
+      "description": "Exactly what was delivered AFTER the audience filter (B-21)."
+    },
+    "label": {
+      "type": "string",
+      "enum": ["latest_known"],
+      "description": "Reads in v0.1 are labelled 'latest_known' — never 'verified_current' (B-01)."
+    },
+    "issuedAt": {
+      "$ref": "defs.json#/$defs/isoDateTime"
+    }
+  }
+}

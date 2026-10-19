@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ssor.example.com/schemas/v0.1-draft/episode.json",
+  "title": "Episode",
+  "description": "Something that happened, recorded exactly as received. An episode is a claim about an event, not the event: after admission it is authoritative for what was recorded, when, by whom and why it was believed — not for the world.",
+  "type": "object",
+  "required": ["type", "subject", "data", "cloudEvents", "origin", "recordTime"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "const": "episode"
+    },
+    "id": {
+      "type": "string",
+      "description": "Server-assigned record id."
+    },
+    "subject": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "What the episode is about: a matter, entity, or event subject."
+    },
+    "matter": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "Matter this episode is linked to. The link itself is a claim with lineage and is supersedeable (issue #1) — never a payload-decided field."
+    },
+    "event": {
+      "type": "string",
+      "description": "Event type, e.g. 'bill.received', 'payment.settled'."
+    },
+    "data": {
+      "type": "object",
+      "description": "The payload, recorded as received. Data only: never parsed as an instruction (B-08).",
+      "minProperties": 1
+    },
+    "cloudEvents": {
+      "$ref": "defs.json#/$defs/cloudEventsKeys"
+    },
+    "dsorEvidence": {
+      "type": "object",
+      "description": "Present when this episode carries DSoR evidence under contract ssor-dsor/0.1-draft (spec §5).",
+      "required": ["contract", "evidenceId", "outcome", "trace"],
+      "additionalProperties": false,
+      "properties": {
+        "contract": { "const": "ssor-dsor/0.1-draft" },
+        "evidenceId": { "type": "string" },
+        "action": {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": { "type": "string" },
+            "paramsDigest": {
+              "type": "string",
+              "description": "Canonical digest of action parameters — not raw secrets."
+            }
+          }
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["settled", "failed", "refused", "uncertain"],
+          "description": "'uncertain' is first-class: a timeout is never recorded as failure (spec §5.2)."
+        },
+        "trace": {
+          "type": "string",
+          "description": "Correlation: the trace recorded before the action. Required; absence triggers the 'uncorrelated' flag (B-23)."
+        },
+        "checks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Checks DSoR ran for itself (permissions, limits, approvals, duplicates). Recorded as DSoR's claims; SSoR never re-evaluates them (B-24)."
+        },
+        "refusal": {
+          "type": "string",
+          "description": "When outcome is 'refused': the limit or approval that refused, per DSoR's attribution."
+        }
+      }
+    },
+    "origin": {
+      "$ref": "defs.json#/$defs/origin"
+    },
+    "authority": {
+      "$ref": "defs.json#/$defs/ssorId",
+      "description": "Designated authority for this fact type per the authority map, as of record time."
+    },
+    "provenance": {
+      "$ref": "defs.json#/$defs/provenance",
+      "description": "Required when a model produced the item."
+    },
+    "recordTime": {
+      "$ref": "defs.json#/$defs/recordTime"
+    },
+    "validTime": {
+      "$ref": "defs.json#/$defs/validTime",
+      "description": "When the event itself occurred, per the source. Late events are placed by valid time (B-16)."
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["uncorrelated", "action_without_trace", "contract_unsupported", "contract_degraded"]
+      },
+      "description": "Admission-set anomaly flags (spec §5.3–§5.4). Never cleared in place: clearing is a new record."
+    },
+    "audience": {
+      "$ref": "defs.json#/$defs/audience"
+    },
+    "supersession": {
+      "$ref": "defs.json#/$defs/supersession"
+    }
+  }
+}
